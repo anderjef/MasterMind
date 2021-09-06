@@ -1,5 +1,4 @@
 //Jeffrey Andersen
-//This program was developed starting June 07, 2021, as a computerized version of the board game Master Mind.
 
 
 #include <algorithm> //copy() and find()
@@ -35,7 +34,7 @@ using std::vector;
 void getUnsignedInt(const string& message, unsigned int& result, const unsigned int minValue = 0, const unsigned int maxValue = UINT_MAX) {
 	bool isAnInputError = false;
 	do {
-		isAnInputError = false;
+		isAnInputError = false; //to be corrected as necessary
 		cout << message;
 		string line;
 		getline(cin, line);
@@ -90,7 +89,7 @@ void printAnswer(ostream& os, const vector<T>& answer, const bool isPresentTense
 int main() { //future consideration: allow for command-line arguments
 	vector<string> colors = { "black", "blue", "green", "red", "white", "yellow", "blank" };
 	unsigned int numPinColors = 6, numPinsPerGuess = 4, numGuesses = 10;
-	const vector<string> cheatCodes = { "answer", "hint", "quit" }; //FIXME: pair to functions?
+	const vector<string> cheatCodes = { "answer", "hint", "quit" }; //future consideration: pair to functions?
 
 	getUnsignedInt("How many pin colors do you want to play with (default is 6)? ", numPinColors, 1, colors.size());
 	colors.resize(numPinColors); //throw out the extra colors
@@ -121,7 +120,7 @@ int main() { //future consideration: allow for command-line arguments
 		istringstream iss(line);
 		vector<string> guess(istream_iterator<string>(iss), {});
 
-		if (guess.size() == 2 && guess[0] == "hint") {
+		if (guess.size() == 2 && guess[0] == cheatCodes[1]) { //cheatCodes[1] == "hint"
 			try {
 				const unsigned int hintIndex = stoul(guess[1]);
 				if (hintIndex == 0 || hintIndex >= answer.size()) { throw out_of_range("hint index argument out of range"); }
@@ -135,11 +134,13 @@ int main() { //future consideration: allow for command-line arguments
 			if (guess.size() == 1 && find(cheatCodes.begin(), cheatCodes.end(), guess[0]) != cheatCodes.end()) {
 				if (guess[0] == cheatCodes[0]) { //cheatCodes[0] == "answer"
 					printAnswer(cout, answer);
+					continue;
 				}
 				else if (guess[0] == cheatCodes[1]) { //cheatCodes[1] == "hint"
 					uniform_int_distribution<unsigned int> distribution(0, answer.size() - 1);
 					const unsigned int hintIndex = distribution(generator);
 					cout << "Your hint: pin " << hintIndex + 1 << " is " << answer[hintIndex] << endl;
+					continue;
 				}
 				else { //if (guess[0] == cheatCodes[2]) //cheatCodes[2] == "quit"
 					cout << "Sorry, you lost. ";
@@ -198,12 +199,12 @@ int main() { //future consideration: allow for command-line arguments
 					}
 				}
 
-				if (response == vector<char>({ 'b', 'b', 'b', 'b' })) {
+				if (response == vector<char>(numPinsPerGuess, 'b')) {
 					cout << "Congratulations! You won!\n";
 					return 0;
 				}
 				else {
-					if (response.size() == 0) {
+					if (response.empty()) {
 						cout << "Nothing correct.";
 					}
 					else {
