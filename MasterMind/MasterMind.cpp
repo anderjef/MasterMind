@@ -62,15 +62,17 @@ void getUnsignedInt(const string& message, unsigned int& result, const unsigned 
 
 
 template<class T>
-void grammaticallyPrintVectorElements(ostream& os, const vector<T>& v) {
-	ostream_iterator<T> outputIterator(os, ", ");
+void grammaticallyPrintVectorElements(ostream& os, const vector<T>& v, const string& coordinatingLogicalOperator) { //the coordinatingLogicalOperator is not confirmed to be such, but simply takes that position in the printed list
 	switch (v.size()) {
 	default:
-		copy(v.begin(), v.end() - 2, outputIterator);
+		copy(v.begin(), v.end() - 2, ostream_iterator<T>(os, ", "));
 	case 2:
-		os << v[v.size() - 2] << (v.size() > 2 ? "," : "") << " and ";
+		os << v[v.size() - 2] << (v.size() > 2 ? ", " : " ");
+		if (!coordinatingLogicalOperator.empty()) {
+			os << coordinatingLogicalOperator << ' ';
+		}
 	case 1:
-		os << v[v.size() - 1];
+		os << v.back();
 	case 0:
 		break;
 	}
@@ -94,7 +96,7 @@ int main() { //future consideration: allow for command-line arguments
 	getUnsignedInt("How many pin colors do you want to play with (default is 6)? ", numPinColors, 1, colors.size());
 	colors.resize(numPinColors); //throw out the extra colors
 	cout << "The color option" << (colors.size() == 1 ? " is " : "s are ");
-	grammaticallyPrintVectorElements(cout, colors);
+	grammaticallyPrintVectorElements(cout, colors, "and");
 	cout << ". Caps are irrelevant in your guesses.\n";
 	getUnsignedInt("How many pins per guess do you want to play with (default is 4)? ", numPinsPerGuess, 1, UINT_MAX);
 	getUnsignedInt("How many guesses do you want to have (default is 10)? ", numGuesses);
@@ -158,7 +160,7 @@ int main() { //future consideration: allow for command-line arguments
 			for (unsigned int i = 0; i < tempAnswerForComparing.size(); i++) {
 				if (find(colors.begin(), colors.end(), guess[i]) == colors.end()) { //if isn't a valid color
 					cerr << "Error: " << guess[i] << " is not a valid color (at least in this game). The valid color option" << (colors.size() == 1 ? " is " : "s are ");
-					grammaticallyPrintVectorElements(cerr, colors);
+					grammaticallyPrintVectorElements(cerr, colors, "and");
 					cerr << ".\n";
 					isAColorError = true;
 					continue;
@@ -172,7 +174,7 @@ int main() { //future consideration: allow for command-line arguments
 				for (unsigned int i = 0; i < tempAnswerForComparing.size(); i++) {
 					if (find(colors.begin(), colors.end(), guess[i]) == colors.end()) { //if isn't a valid color
 						cerr << "Error: " << guess[i] << " is not a valid color (at least in this game). The valid color option" << (colors.size() == 1 ? " is " : "s are ");
-						grammaticallyPrintVectorElements(cerr, colors);
+						grammaticallyPrintVectorElements(cerr, colors, "and");
 						cerr << ".\n";
 						isAColorError = true;
 						continue;
